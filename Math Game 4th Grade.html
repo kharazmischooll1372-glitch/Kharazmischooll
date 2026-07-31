@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازی آموزشی ریاضی چهارم ابتدایی</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+        
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .score-item .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .score-item .label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .question-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 2em;
+            font-weight: bold;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .option {
+            padding: 20px;
+            font-size: 1.3em;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .option:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .option.correct {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .option.wrong {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .level-selector {
+            margin: 20px 0;
+        }
+        
+        .level-btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .level-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .level-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .emoji {
+            font-size: 3em;
+            margin: 20px 0;
+        }
+        
+        .timer {
+            font-size: 1.5em;
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 480px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            .question-box {
+                font-size: 1.5em;
+            }
+            h1 {
+                font-size: 1.4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- صفحه شروع -->
+        <div id="start-screen">
+            <h1>🎯 بازی آموزشی ریاضی</h1>
+            <p style="color: #666; margin: 10px 0;">پایه چهارم ابتدایی</p>
+            <div class="emoji">🧮</div>
+            
+            <div class="level-selector">
+                <p style="margin-bottom: 10px; color: #333; font-weight: bold;">سطح دشواری را انتخاب کنید:</p>
+                <button class="level-btn active" onclick="setLevel('easy')">آسان</button>
+                <button class="level-btn" onclick="setLevel('medium')">متوسط</button>
+                <button class="level-btn" onclick="setLevel('hard')">سخت</button>
+            </div>
+            
+            <button class="btn btn-primary" onclick="startGame()">شروع بازی 🚀</button>
+        </div>
+        
+        <!-- صفحه بازی -->
+        <div id="game-screen" class="hidden">
+            <h1>🎯 بازی ریاضی</h1>
+            
+            <div class="score-board">
+                <div class="score-item">
+                    <div class="number" id="score">0</div>
+                    <div class="label">امتیاز</div>
+                </div>
+                <div class="score-item">
+                    <div class="number" id="question-num">1</div>
+                    <div class="label">سوال</div>
+                </div>
+                <div class="score-item">
+                    <div class="number" id="streak">0</div>
+                    <div class="label">پیاپی ✓</div>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress" style="width: 0%"></div>
+            </div>
+            
+            <div class="question-box" id="question">
+                سوال اینجا نمایش داده می‌شود
+            </div>
+            
+            <div id="message" class="message hidden"></div>
+            
+            <div class="options" id="options">
+                <!-- گزینه‌ها اینجا اضافه می‌شوند -->
+            </div>
+            
+            <div id="timer-display" class="hidden">
+                <span class="timer" id="timer">30</span>
+            </div>
+        </div>
+        
+        <!-- صفحه نتیجه -->
+        <div id="result-screen" class="hidden">
+            <h1>🏆 نتیجه بازی</h1>
+            <div class="emoji" id="result-emoji">🎉</div>
+            <div class="score-board">
+                <div class="score-item">
+                    <div class="number" id="final-score">0</div>
+                    <div class="label">امتیاز نهایی</div>
+                </div>
+                <div class="score-item">
+                    <div class="number" id="correct-count">0</div>
+                    <div class="label">پاسخ صحیح</div>
+                </div>
+                <div class="score-item">
+                    <div class="number" id="accuracy">0%</div>
+                    <div class="label">دقت</div>
+                </div>
+            </div>
+            <p id="result-message" style="margin: 20px 0; font-size: 1.2em; color: #333;"></p>
+            <button class="btn btn-primary" onclick="restartGame()">بازی مجدد 🔄</button>
+            <button class="btn btn-secondary" onclick="goHome()">صفحه اصلی 🏠</button>
+        </div>
+    </div>
+
+    <script>
+        // متغیرهای بازی
+        let score = 0;
+        let currentQuestion = 0;
+        let totalQuestions = 10;
+        let correctAnswers = 0;
+        let streak = 0;
+        let maxStreak = 0;
+        let level = 'easy';
+        let timerInterval = null;
+        let timeLeft = 30;
+        let canAnswer = true;
+        
+        // تنظیم سطح دشواری
+        function setLevel(lvl) {
+            level = lvl;
+            document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        // شروع بازی
+        function startGame() {
+            score = 0;
+            currentQuestion = 0;
+            correctAnswers = 0;
+            streak = 0;
+            maxStreak = 0;
+            canAnswer = true;
+            
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            
+            updateScore();
+            generateQuestion();
+        }
+        
+        // تولید سوال
+        function generateQuestion() {
+            canAnswer = true;
+            currentQuestion++;
+            
+            if (currentQuestion > totalQuestions) {
+                showResult();
+                return;
+            }
+            
+            document.getElementById('question-num').textContent = currentQuestion;
+            document.getElementById('progress').style.width = ((currentQuestion - 1) / totalQuestions * 100) + '%';
+            
+            let questionData;
+            
+            switch(level) {
+                case 'easy':
+                    questionData = generateEasyQuestion();
+                    break;
+                case 'medium':
+                    questionData = generateMediumQuestion();
+                    break;
+                case 'hard':
+                    questionData = generateHardQuestion();
+                    break;
+            }
+            
+            document.getElementById('question').textContent = questionData.question;
+            
+            let optionsHtml = '';
+            questionData.options.forEach((option, index) => {
+                optionsHtml += '<button class="option" onclick="checkAnswer(' + option + ', ' + questionData.answer + ', this)">' + option + '</button>';
+            });
+            
+            document.getElementById('options').innerHTML = optionsHtml;
+            document.getElementById('message').classList.add('hidden');
+            
+            // شروع تایمر
+            startTimer();
+        }
+        
+        // سوالات آسان: جمع و تفریق ساده
+        function generateEasyQuestion() {
+            const types = ['add', 'subtract', 'multiply'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            let num1, num2, answer, question;
+            
+            switch(type) {
+                case 'add':
+                    num1 = Math.floor(Math.random() * 50) + 10;
+                    num2 = Math.floor(Math.random() * 50) + 10;
+                    answer = num1 + num2;
+                    question = num1 + ' + ' + num2 + ' = ?';
+                    break;
+                case 'subtract':
+                    num1 = Math.floor(Math.random() * 50) + 30;
+                    num2 = Math.floor(Math.random() * 30) + 1;
+                    answer = num1 - num2;
+                    question = num1 + ' - ' + num2 + ' = ?';
+                    break;
+                case 'multiply':
+                    num1 = Math.floor(Math.random() * 10) + 1;
+                    num2 = Math.floor(Math.random() * 10) + 1;
+                    answer = num1 * num2;
+                    question = num1 + ' × ' + num2 + ' = ?';
+                    break;
+            }
+            
+            return {
+                question: question,
+                answer: answer,
+                options: generateOptions(answer, 20)
+            };
+        }
+        
+        // سوالات متوسط: ضرب و تقسیم بزرگتر
+        function generateMediumQuestion() {
+            const types = ['multiply', 'divide', 'mixed'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            let num1, num2, answer, question;
+            
+            switch(type) {
+                case 'multiply':
+                    num1 = Math.floor(Math.random() * 20) + 5;
+                    num2 = Math.floor(Math.random() * 15) + 2;
+                    answer = num1 * num2;
+                    question = num1 + ' × ' + num2 + ' = ?';
+                    break;
+                case 'divide':
+                    num2 = Math.floor(Math.random() * 10) + 2;
+                    answer = Math.floor(Math.random() * 15) + 1;
+                    num1 = num2 * answer;
+                    question = num1 + ' ÷ ' + num2 + ' = ?';
+                    break;
+                case 'mixed':
+                    num1 = Math.floor(Math.random() * 30) + 10;
+                    num2 = Math.floor(Math.random() * 20) + 5;
+                    let num3 = Math.floor(Math.random() * 10) + 1;
+                    answer = num1 + num2 - num3;
+                    question = num1 + ' + ' + num2 + ' - ' + num3 + ' = ?';
+                    break;
+            }
+            
+            return {
+                question: question,
+                answer: answer,
+                options: generateOptions(answer, 30)
+            };
+        }
+        
+        // سوالات سخت: عملیات ترکیبی
+        function generateHardQuestion() {
+            const types = ['complex1', 'complex2', 'complex3'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            let num1, num2, num3, answer, question;
+            
+            switch(type) {
+                case 'complex1':
+                    num1 = Math.floor(Math.random() * 20) + 5;
+                    num2 = Math.floor(Math.random() * 10) + 2;
+                    num3 = Math.floor(Math.random() * 30) + 10;
+                    answer = num1 * num2 + num3;
+                    question = num1 + ' × ' + num2 + ' + ' + num3 + ' = ?';
+                    break;
+                case 'complex2':
+                    num1 = Math.floor(Math.random() * 50) + 20;
+                    num2 = Math.floor(Math.random() * 20) + 5;
+                    num3 = Math.floor(Math.random() * 10) + 2;
+                    answer = (num1 - num2) * num3;
+                    question = '(' + num1 + ' - ' + num2 + ') × ' + num3 + ' = ?';
+                    break;
+                case 'complex3':
+                    num2 = Math.floor(Math.random() * 8) + 2;
+                    answer = Math.floor(Math.random() * 20) + 5;
+                    num1 = num2 * answer;
+                    let num4 = Math.floor(Math.random() * 15) + 5;
+                    answer = answer + num4;
+                    question = num1 + ' ÷ ' + num2 + ' + ' + num4 + ' = ?';
+                    break;
+            }
+            
+            return {
+                question: question,
+                answer: answer,
+                options: generateOptions(answer, 50)
+            };
+        }
+        
+        // تولید گزینه‌ها
+        function generateOptions(correctAnswer, range) {
+            let options = [correctAnswer];
+            
+            while (options.length < 4) {
+                let wrongAnswer = correctAnswer + Math.floor(Math.random() * range) - Math.floor(range / 2);
+                if (wrongAnswer !== correctAnswer && !options.includes(wrongAnswer) && wrongAnswer > 0) {
+                    options.push(wrongAnswer);
+                }
+            }
+            
+            // مخلوط کردن گزینه‌ها
+            return options.sort(() => Math.random() - 0.5);
+        }
+        
+        // بررسی پاسخ
+        function checkAnswer(selected, correct, element) {
+            if (!canAnswer) return;
+            canAnswer = false;
+            
+            clearInterval(timerInterval);
+            
+            let options = document.querySelectorAll('.option');
+            options.forEach(opt => {
+                opt.onclick = null;
+                if (parseInt(opt.textContent) === correct) {
+                    opt.classList.add('correct');
+                }
+            });
+            
+            let messageDiv = document.getElementById('message');
+            
+            if (selected === correct) {
+                // پاسخ صحیح
+                element.classList.add('correct');
+                score += 10 + (streak * 2);
+                correctAnswers++;
+                streak++;
+                if (streak > maxStreak) maxStreak = streak;
+                
+                messageDiv.className = 'message success';
+                messageDiv.textContent = 'آفرین! پاسخ صحیح بود 🎉';
+                
+                if (streak >= 3) {
+                    messageDiv.textContent += ' (' + streak + ' پاسخ پیاپی درست!)';
+                }
+            } else {
+                // پاسخ نادرست
+                element.classList.add('wrong');
+                streak = 0;
+                
+                messageDiv.className = 'message error';
+                messageDiv.textContent = 'اشتباه بود! پاسخ صحیح: ' + correct;
+            }
+            
+            messageDiv.classList.remove('hidden');
+            updateScore();
+            
+            // رفتن به سوال بعدی
+            setTimeout(() => {
+                generateQuestion();
+            }, 2000);
+        }
+        
+        // تایمر
+        function startTimer() {
+            timeLeft = level === 'easy' ? 30 : level === 'medium' ? 25 : 20;
+            document.getElementById('timer').textContent = timeLeft;
+            document.getElementById('timer-display').classList.remove('hidden');
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    canAnswer = false;
+                    
+                    let messageDiv = document.getElementById('message');
+                    messageDiv.className = 'message error';
+                    messageDiv.textContent = 'وقت تمام شد! ⏰';
+                    messageDiv.classList.remove('hidden');
+                    
+                    let options = document.querySelectorAll('.option');
+                    options.forEach(opt => {
+                        opt.onclick = null;
+                    });
+                    
+                    streak = 0;
+                    
+                    setTimeout(() => {
+                        generateQuestion();
+                    }, 2000);
+                }
+            }, 1000);
+        }
+        
+        // بروزرسانی امتیاز
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+        }
+        
+        // نمایش نتیجه
+        function showResult() {
+            clearInterval(timerInterval);
+            
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('correct-count').textContent = correctAnswers + ' از ' + totalQuestions;
+            
+            let accuracy = Math.round((correctAnswers / totalQuestions) * 100);
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            
+            let emoji, message;
+            if (accuracy >= 90) {
+                emoji = '🏆';
+                message = 'عالی! تو یک نابغه ریاضی هستی! 🌟';
+            } else if (accuracy >= 70) {
+                emoji = '🎉';
+                message = 'آفرین! خیلی خوب بودی! 👏';
+            } else if (accuracy >= 50) {
+                emoji = '😊';
+                message = 'خوب بود! ادامه بده تا بهتر بشی! 💪';
+            } else {
+                emoji = '📚';
+                message = 'نگران نباش! با تمرین بیشتر حتماً بهتر می‌شی! 🤗';
+            }
+            
+            document.getElementById('result-emoji').textContent = emoji;
+            document.getElementById('result-message').textContent = message;
+        }
+        
+        // شروع مجدد
+        function restartGame() {
+            startGame();
+        }
+        
+        // بازگشت به صفحه اصلی
+        function goHome() {
+            clearInterval(timerInterval);
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
